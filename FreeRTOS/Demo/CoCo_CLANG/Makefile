@@ -4,7 +4,6 @@
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
 COMMON_DIR=../Common
-COMPILER_COMMON=$(COMMON_DIR)/CLANG
 CPU=turbo9
 BUILD_DIR=build-clang
 LOAD_ADDR?=0x2800
@@ -26,7 +25,7 @@ else
 MAME_AUTOBOOT_ARGS = -autoboot_delay $(MAME_AUTOBOOT_DELAY) -autoboot_command '$(MAME_AUTOBOOT_COMMAND)'
 endif
 
-CPPFLAGS+=-I. -I$(COMPILER_COMMON) -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-coco -I../../Source/portable/CLANG/CoCo \
+CPPFLAGS+=-I. -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-coco -I../../Source/portable/CLANG/CoCo \
   -I$(RTOS_BASEDIR)/include -DCLANG_COCO
 
 CFLAGS+=-Oz -ffreestanding -fno-builtin -Wno-implicit-function-declaration \

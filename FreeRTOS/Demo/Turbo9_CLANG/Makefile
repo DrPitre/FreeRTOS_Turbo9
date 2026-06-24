@@ -4,7 +4,6 @@
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
 COMMON_DIR=../Common
-COMPILER_COMMON=$(COMMON_DIR)/CLANG
 CPU=turbo9
 
 LLVM6809_ROOT?=/Volumes/Lagniappe/llvm/llvm-mc6809/llvm/build
@@ -14,7 +13,7 @@ LLVM6809_RTDIR?=$(LLVM6809_ROOT)/lib/Target/MC6809/Runtime
 CC=$(LLVM6809_BINDIR)/clang
 OBJCOPY=$(LLVM6809_BINDIR)/llvm-objcopy
 
-CPPFLAGS+=-I. -I$(COMPILER_COMMON) -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-turbo9 -I../../Source/portable/CLANG/Turbo9 \
+CPPFLAGS+=-I. -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-turbo9 -I../../Source/portable/CLANG/Turbo9 \
   -I$(RTOS_BASEDIR)/include -DCLANG_TURBO9
 
 CFLAGS+=-Oz -ffreestanding -fno-builtin -Wno-implicit-function-declaration \

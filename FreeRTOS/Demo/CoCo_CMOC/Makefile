@@ -4,7 +4,6 @@
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
 COMMON_DIR=../Common
-COMPILER_COMMON=$(COMMON_DIR)/CMOC
 CPU=turbo9
 
 DEVC_PREFIX=
@@ -20,10 +19,10 @@ else
 MAME_AUTOBOOT_ARGS = -autoboot_delay $(MAME_AUTOBOOT_DELAY) -autoboot_command '$(MAME_AUTOBOOT_COMMAND)'
 endif
 
-CPPFLAGS+=-I. -I$(COMPILER_COMMON) -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
+CPPFLAGS+=-I. -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
   -I$(RTOS_BASEDIR)/include -DCMOC_COCO
 
-CFLAGS+=--decb -D$(CPU) -Wno-const -DFREERTOS
+CFLAGS+=--decb -D$(CPU) -Wno-const -DFREERTOS -DCMOC_FREERTOS
 
 RTOS_SRCS = $(RTOS_BASEDIR)/portable/CMOC/CoCo/port.c \
   $(RTOS_BASEDIR)/portable/MemMang/heap_2.c \

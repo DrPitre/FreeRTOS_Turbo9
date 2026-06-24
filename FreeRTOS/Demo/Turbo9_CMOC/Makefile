@@ -4,7 +4,6 @@
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
 COMMON_DIR=../Common
-COMPILER_COMMON=$(COMMON_DIR)/CMOC
 CPU=turbo9
 
 DEVC_PREFIX=
@@ -13,10 +12,10 @@ AS=$(DEVC_PREFIX)as
 AR=$(DEVC_PREFIX)ar
 OBJDUMP=$(DEVC_PREFIX)lwobjdump
 
-CPPFLAGS+=-i -I. -I$(COMPILER_COMMON) -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-turbo9 -I../../Source/portable/CMOC/Turbo9 \
+CPPFLAGS+=-i -I. -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-turbo9 -I../../Source/portable/CMOC/Turbo9 \
   -I$(RTOS_BASEDIR)/include -DCMOC_TURBO9
 
-CFLAGS+=-i -D$(CPU) -Wno-const -DFREERTOS
+CFLAGS+=-i -D$(CPU) -Wno-const -DFREERTOS -DCMOC_FREERTOS
 
 RTOS_SRCS = $(RTOS_BASEDIR)/portable/CMOC/Turbo9/port.c \
   $(RTOS_BASEDIR)/portable/MemMang/heap_2.c \
