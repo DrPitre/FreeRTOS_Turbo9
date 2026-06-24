@@ -26,7 +26,7 @@
  *
  */
 
-/* CMOC/Turbo9 port, derived from GCC/HCS12 port by Jefferson L Smith, 2005 */
+/* CMOC/CoCo port, derived from GCC/HCS12 port by Jefferson L Smith, 2005 */
 
 /* Scheduler includes. */
 #include <cmoc.h>
@@ -34,7 +34,7 @@
 #include "task.h"
 
 /*-----------------------------------------------------------
- * Implementation of functions defined in portable.h for the Turbo9 port.
+ * Implementation of functions defined in portable.h for the CoCo port.
  *----------------------------------------------------------*/
 
 
@@ -86,11 +86,11 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 	   Bytes are pushed from highest address down; the last push becomes [S]
 	   after portRESTORE_CONTEXT pops the nesting count. */
 
-	/* PC: big-endian — MSB at lower address ([S+10]), LSB at higher ([S+11]). */
+	/* PC: big-endian - MSB at lower address ([S+10]), LSB at higher ([S+11]). */
 	*pxTopOfStack   = ( StackType_t ) *( ((StackType_t *) (&pxCode) ) + 1 ); /* PC_LSB */
 	*--pxTopOfStack = ( StackType_t ) *( ((StackType_t *) (&pxCode) ) + 0 ); /* PC_MSB */
 
-	/* U, Y, X: debug sentinels only — values do not affect task execution. */
+	/* U, Y, X: debug sentinels only - values do not affect task execution. */
 	*--pxTopOfStack = ( StackType_t ) 0xff;
 	*--pxTopOfStack = ( StackType_t ) 0xee;
 
@@ -124,22 +124,25 @@ void vPortEndScheduler( void )
 }
 /*-----------------------------------------------------------*/
 
+static void (*capturedIRQAddress)();
+static void (*capturedSWIAddress)();
+
 static void prvSetupTimerInterrupt( void )
 {
-	char *timerStatus = 0xFF02;
-	char *timerControl = 0xFF03;
+    /* piggy back off of the CoCo BASIC timer */
+    int *orgIRQAddress = 0x10D;
+    int *orgSWIAddress = 0x107;
 
-	/* set the IRQ and SWI vectors */
-	int *orgIRQAddress = 0xFFF8;
-	int *orgSWIAddress = 0xFFFA;
+    char *orgSWIVector = 0x106;
 
  portDISABLE_INTERRUPTS()
-	*orgIRQAddress = vPortTickInterrupt;
-	*orgSWIAddress = vPortYield;
+    /* save off original IRQ address */
+    capturedIRQAddress = *orgIRQAddress;
+    capturedSWIAddress = *orgSWIAddress;
 
-	// enable interrupt on timer fire
-	*timerControl |= 0x01;	
-
+    *orgIRQAddress = vPortTickInterrupt;
+    *orgSWIVector = 0x7E;
+    *orgSWIAddress = vPortYield;
 portENABLE_INTERRUPTS()
 }
 
@@ -180,6 +183,9 @@ void vPortYield( void )
 	portSAVE_CONTEXT();
 	vTaskSwitchContext();
 	portRESTORE_CONTEXT();
+	asm {
+		cwai #^$50
+	}
 
 	portISR_TAIL();
 }
@@ -195,9 +201,7 @@ void vPortTickInterrupt( void )
 	portISR_HEAD();
 
         asm {
-         lda $ff02  get timer status register
-		 ora #$01   set bit
-		 sta $ff02  and write it out to clear interrupt
+         lda $ff02 reset PIA0 port B interrupt flag
     }
 	#if configUSE_PREEMPTION == 1
 	{
