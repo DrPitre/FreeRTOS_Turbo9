@@ -23,6 +23,11 @@ freertos.dsk
 `main.obj` is copied to the disk as `FRTOS.BIN`, and the disk also includes an
 `AUTOEXEC.BAS` loader that runs the binary.
 
+## Shared Support
+
+Board support headers, startup code, and small compiler shim headers are shared
+through `FreeRTOS/Demo/Common`.
+
 ## Run
 
 ```sh

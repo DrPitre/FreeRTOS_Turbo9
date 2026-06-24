@@ -19,6 +19,11 @@ The default target builds:
 freertos_baseline.img
 ```
 
+## Shared Support
+
+Board support headers, startup code, and small compiler shim headers are shared
+through `FreeRTOS/Demo/Common`.
+
 ## Run
 
 ```sh

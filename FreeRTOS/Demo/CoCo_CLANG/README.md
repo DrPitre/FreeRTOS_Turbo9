@@ -25,6 +25,11 @@ wraps it in a DECB binary container, and copies it to the disk as `FRTOS.BIN`.
 It also keeps all clang object files under `build-clang/` so this demo does not
 share stale objects with the CMOC demo.
 
+## Shared Support
+
+Board support headers, startup code, and small compiler shim headers are shared
+through `FreeRTOS/Demo/Common`.
+
 ## Run
 
 ```sh

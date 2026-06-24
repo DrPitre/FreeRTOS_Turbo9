@@ -3,6 +3,8 @@
 #
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
+COMMON_DIR=../Common
+COMPILER_COMMON=$(COMMON_DIR)/CMOC
 CPU=turbo9
 
 DEVC_PREFIX=
@@ -18,23 +20,25 @@ else
 MAME_AUTOBOOT_ARGS = -autoboot_delay $(MAME_AUTOBOOT_DELAY) -autoboot_command '$(MAME_AUTOBOOT_COMMAND)'
 endif
 
-CPPFLAGS+=-I. -I./asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
+CPPFLAGS+=-I. -I$(COMPILER_COMMON) -I$(COMMON_DIR) -I$(COMMON_DIR)/asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
   -I$(RTOS_BASEDIR)/include -DCMOC_COCO
 
 CFLAGS+=--decb -D$(CPU) -Wno-const -DFREERTOS
 
-RTOS_SRCS = main.c startup.c \
-  $(RTOS_BASEDIR)/portable/CMOC/CoCo/port.c \
+RTOS_SRCS = $(RTOS_BASEDIR)/portable/CMOC/CoCo/port.c \
   $(RTOS_BASEDIR)/portable/MemMang/heap_2.c \
   $(RTOS_BASEDIR)/list.c \
   $(RTOS_BASEDIR)/tasks.c
 
-OBJS=$(RTOS_SRCS:.c=.o)
+OBJS=main.o startup.o $(RTOS_SRCS:.c=.o)
 
 all: main.obj
 
 main.obj: $(OBJS)
 	$(CC) $(LDFLAGS) -o $@ $^
+
+startup.o: $(COMMON_DIR)/startup.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 clean:
 	$(RM) $(OBJS) *.obj *.dsk *.list *.map *.link
