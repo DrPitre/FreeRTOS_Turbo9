@@ -7,6 +7,16 @@ CPU=turbo9
 
 DEVC_PREFIX=
 CC=$(DEVC_PREFIX)cmoc
+MAME ?= mame
+MAME_MACHINE ?= coco2b
+MAME_AUTOBOOT_DELAY ?= 2
+MAME_AUTOBOOT_COMMAND ?= RUN"*"\n
+
+ifeq ($(AUTOBOOT),0)
+MAME_AUTOBOOT_ARGS =
+else
+MAME_AUTOBOOT_ARGS = -autoboot_delay $(MAME_AUTOBOOT_DELAY) -autoboot_command '$(MAME_AUTOBOOT_COMMAND)'
+endif
 
 CPPFLAGS+=-I. -I./asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
   -I$(RTOS_BASEDIR)/include -DCMOC_COCO
@@ -31,7 +41,7 @@ clean:
 
 freertos.dsk: main.obj
 	decb dskini freertos.dsk
-	echo "10 LOADM\"FRTOS.BIN\":EXEC" > /tmp/loader.bas
+	printf "10 CLS\n20 PRINT \"LOADING FREERTOS COCO\"\n30 LOADM\"FRTOS.BIN\":EXEC\n" > /tmp/loader.bas
 	decb copy -b -0 -t /tmp/loader.bas freertos.dsk,\AUTOEXEC.BAS
 	decb copy -b -0 -t /tmp/loader.bas freertos.dsk,\*.BAS
 	decb copy -b -2 main.obj freertos.dsk,FRTOS.BIN
@@ -39,8 +49,8 @@ freertos.dsk: main.obj
 reload:
 	osascript -e 'tell application "DriveWire"' -e 'tell server of every document' -e 'reload drive 0' -e 'end tell' -e 'end tell'
 
-emu: freertos.dsk
-	mame -inipath ~/mame -cfg_directory ~/mame/cfg coco2b -flop1 $^
+run emu: freertos.dsk
+	$(MAME) -nothrottle -skip_gameinfo -rompath $(MAME_ROM_PATH) -window $(MAME_MACHINE) -flop1 $^ $(MAME_AUTOBOOT_ARGS)
 
-demu: freertos.dsk
-	mame -inipath ~/mame -cfg_directory ~/mame/cfg coco2b -d -flop1 $^
+run_debug demu: freertos.dsk
+	$(MAME) -nothrottle -skip_gameinfo -rompath $(MAME_ROM_PATH) -window $(MAME_MACHINE) -flop1 $^ $(MAME_AUTOBOOT_ARGS) -d

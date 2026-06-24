@@ -143,7 +143,6 @@ static void prvSetupTimerInterrupt( void )
     *orgIRQAddress = vPortTickInterrupt;
     *orgSWIVector = 0x7E;
     *orgSWIAddress = vPortYield;
-portENABLE_INTERRUPTS()
 }
 
 /*-----------------------------------------------------------*/
@@ -183,9 +182,6 @@ void vPortYield( void )
 	portSAVE_CONTEXT();
 	vTaskSwitchContext();
 	portRESTORE_CONTEXT();
-	asm {
-		cwai #^$50
-	}
 
 	portISR_TAIL();
 }

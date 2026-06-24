@@ -26,15 +26,70 @@
 #include "task.h"
 #include "cpu.h"
 
-static void coco_task( void *parameters )
+static volatile unsigned char * const coco_screen = ( volatile unsigned char * ) 0x0400;
+
+static unsigned char coco_screen_char( char c )
 {
+    if( c == ' ' )
+    {
+        return 0x60;
+    }
+
+    return ( unsigned char ) c;
+}
+
+static void coco_screen_clear( void )
+{
+    unsigned short i;
+
+    for( i = 0; i < 512; i++ )
+    {
+        coco_screen[ i ] = 0x60;
+    }
+}
+
+static void coco_screen_puts_at( unsigned char row, const char *text )
+{
+    volatile unsigned char *p = coco_screen + ( row * 32 );
+    unsigned char col;
+
+    for( col = 0; col < 32; col++ )
+    {
+        p[ col ] = 0x60;
+    }
+
+    col = 0;
+    while( ( *text != '\0' ) && ( col < 32 ) )
+    {
+        p[ col ] = coco_screen_char( *text );
+        col++;
+        text++;
+    }
+}
+
+static void coco_screen_put_hex_at( unsigned char row, unsigned char col, unsigned char value )
+{
+    static const char hex[] = "0123456789ABCDEF";
+    volatile unsigned char *p = coco_screen + ( row * 32 ) + col;
+
+    p[ 0 ] = hex[ ( value >> 4 ) & 0x0f ];
+    p[ 1 ] = hex[ value & 0x0f ];
+}
+
+static void terminal_task( void *parameters )
+{
+    unsigned char ticks = 0;
+
     ( void ) parameters;
 
-    printf( "FreeRTOS CoCo demo starting\n" );
+    coco_screen_puts_at( 2, "TASK STARTED" );
+    coco_screen_puts_at( 3, "HEARTBEAT 00" );
 
     while( 1 )
     {
-        printf( "FreeRTOS CoCo task heartbeat\n" );
+        coco_screen_put_hex_at( 3, 10, ticks );
+        ticks++;
+
         vTaskDelay( 60 );
     }
 }
@@ -44,8 +99,11 @@ int ATTR_BANK0 main( void )
     TaskHandle_t task;
     BaseType_t ret;
 
-    ret = xTaskCreate( coco_task,
-                       "COCO",
+    coco_screen_clear();
+    coco_screen_puts_at( 0, "FREERTOS COCO MAIN" );
+
+    ret = xTaskCreate( terminal_task,
+                       "TM",
                        256,
                        NULL,
                        1,
@@ -53,12 +111,14 @@ int ATTR_BANK0 main( void )
 
     if( ret != pdPASS )
     {
-        printf( "xTaskCreate failed\n" );
+        coco_screen_puts_at( 1, "XTASKCREATE FAILED" );
         for( ;; );
     }
 
+    coco_screen_puts_at( 1, "STARTING SCHEDULER" );
     vTaskStartScheduler();
 
+    coco_screen_puts_at( 4, "SCHEDULER RETURNED" );
     for( ;; );
     return 0;
 }
