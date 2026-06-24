@@ -1,0 +1,15 @@
+.DS_Store
+*.o
+*.obj
+*.dsk
+*.img
+*.rom
+*.tmp
+*.map
+*.list
+*.lst
+*.link
+
+/FreeRTOS/Demo/*_CMOC/*.s
+/FreeRTOS/Demo/*_CMOC/lastpage
+/FreeRTOS/Demo/*_CMOC/zero.tmp

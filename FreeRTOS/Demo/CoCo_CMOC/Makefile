@@ -3,48 +3,31 @@
 #
 SRCDIR=../..
 RTOS_BASEDIR=$(SRCDIR)/Source
-#include ".././.
 CPU=turbo9
 
 DEVC_PREFIX=
 CC=$(DEVC_PREFIX)cmoc
-AS=$(DEVC_PREFIX)as
-AR=$(DEVC_PREFIX)ar
-\OBJDUMP=$(DEVC_PREFIX)lwobjdump
 
-CPPFLAGS+=-I. -I./asm-$(CPU)/arch-coco -I../Common/include -I../../Source/portable/CMOC/CoCo \
+CPPFLAGS+=-I. -I./asm-$(CPU)/arch-coco -I../../Source/portable/CMOC/CoCo \
   -I$(RTOS_BASEDIR)/include -DCMOC_COCO
 
 CFLAGS+=--decb -D$(CPU) -Wno-const -DFREERTOS
 
-CSRCS=main.c startup.c 
-#  ../Common/Minimal/PollQ.c
-
-# vectors.c serial.c sci.c ParTest.c gelfunc.c \
-#  ../Common/Minimal/flash.c \
-#  ../Common/Minimal/dynamic.c \
-#  ../Common/Minimal/BlockQ.c \
-#  ../Common/Minimal/PollQ.c \
-#  ../Common/Minimal/comtest.c \
-#  ../Common/Minimal/integer.c \
-#  ../Common/Minimal/death.c \
-
-RTOS_OBJS = $(RTOS_BASEDIR)/portable/CMOC/CoCo/port.c \
+RTOS_SRCS = main.c startup.c \
+  $(RTOS_BASEDIR)/portable/CMOC/CoCo/port.c \
   $(RTOS_BASEDIR)/portable/MemMang/heap_2.c \
   $(RTOS_BASEDIR)/list.c \
-  $(RTOS_BASEDIR)/tasks.c \
-  $(RTOS_BASEDIR)/queue.c
+  $(RTOS_BASEDIR)/tasks.c
 
-#OBJS=$(CSRCS:.c=.o) $(RTOS_OBJS:.c=.o)
-OBJS=$(CSRCS:.c=.o) $(RTOS_OBJS:.c=.o)
+OBJS=$(RTOS_SRCS:.c=.o)
 
-all:	main.obj
+all: main.obj
 
-main.obj:	$(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^ 
+main.obj: $(OBJS)
+	$(CC) $(LDFLAGS) -o $@ $^
 
 clean:
-	$(RM) $(OBJS) *.obj
+	$(RM) $(OBJS) *.obj *.dsk *.list *.map *.link
 
 freertos.dsk: main.obj
 	decb dskini freertos.dsk

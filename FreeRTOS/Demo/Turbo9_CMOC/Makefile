@@ -11,7 +11,7 @@ AS=$(DEVC_PREFIX)as
 AR=$(DEVC_PREFIX)ar
 OBJDUMP=$(DEVC_PREFIX)lwobjdump
 
-CPPFLAGS+=-i -I. -I./asm-$(CPU)/arch-turbo9 -I../Common/include -I../../Source/portable/CMOC/Turbo9 \
+CPPFLAGS+=-i -I. -I./asm-$(CPU)/arch-turbo9 -I../../Source/portable/CMOC/Turbo9 \
   -I$(RTOS_BASEDIR)/include -DCMOC_TURBO9
 
 CFLAGS+=-i -D$(CPU) -Wno-const -DFREERTOS
